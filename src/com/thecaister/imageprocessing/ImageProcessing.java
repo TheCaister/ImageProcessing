@@ -8,6 +8,7 @@ import java.io.IOException;
 public class ImageProcessing {
     /**
      * Checks if a String is an Integer.
+     *
      * @param input String to be checked.
      * @return True if the input is an Integer and False otherwise.
      */
@@ -22,6 +23,7 @@ public class ImageProcessing {
 
     /**
      * Tries to find and retrieve a File using the provided filename.
+     *
      * @param filename Name of the file to search for.
      * @return File handle to the desired file if it is found.
      */
@@ -45,7 +47,61 @@ public class ImageProcessing {
     }
 
     /**
+     * Generates a File with the appropriate version number.
+     *
+     * @param filename Name of the file.
+     * @return The File with version number.
+     */
+    public static File generateFile(String filename) {
+        File file;
+
+        // e.g. house_0.png splits into [0] = "house_0" and [1] = "png"
+        String[] splitFromExtension = filename.split("\\.");
+
+        // e.g. house_0 splits into [0] = "house" and [1] = "0"
+        String[] splitFromVersion = splitFromExtension[0].split("_");
+
+        int splitFromExtensionLastIndex = splitFromExtension.length - 1;
+        int splitFromVersionLastIndex = splitFromVersion.length - 1;
+
+
+        int versionNumber;
+
+        if (checkStringIsInt(splitFromVersion[splitFromVersionLastIndex])) {
+            versionNumber = Integer.parseInt(splitFromVersion[splitFromVersionLastIndex]);
+
+        } else {
+            versionNumber = 0;
+
+        }
+
+        System.out.println(filename);
+        StringBuilder fileNameWithoutVersion = new StringBuilder();
+
+        for (int i = 0; i < splitFromVersionLastIndex; i++) {
+            fileNameWithoutVersion.append(splitFromVersion[i]);
+            fileNameWithoutVersion.append("_");
+        }
+        fileNameWithoutVersion.append(splitFromVersion[splitFromVersionLastIndex]);
+
+        // Next, we check to see which version this next image will be.
+        // If there is a house_0.png already, we should make an image called house_1.png
+        file = new File("images/" + fileNameWithoutVersion + "_" + versionNumber + "." + splitFromExtension[splitFromExtensionLastIndex]);
+
+
+        while (file.exists()) {
+            versionNumber++;
+            file = new File("images/" + fileNameWithoutVersion + "_" + versionNumber + "." + splitFromExtension[splitFromExtensionLastIndex]);
+
+            System.out.println();
+        }
+
+        return file;
+    }
+
+    /**
      * Converts an image to greyscale
+     *
      * @param filename Name of the image file to apply the greyscale transformation to.
      */
     public static void GreyScale(String filename) {
@@ -84,50 +140,11 @@ public class ImageProcessing {
             }
         }
         try {
-            String newPathName = file.getName();
+            file = generateFile(file.getName());
 
-            // e.g. house_0.png splits into [0] = "house_0" and [1] = "png"
-            String[] splitFromExtension = newPathName.split("\\.");
-
-            // e.g. house_0 splits into [0] = "house" and [1] = "0"
-            String[] splitFromVersion = splitFromExtension[0].split("_");
-
-            int splitFromExtensionLastIndex = splitFromExtension.length - 1;
-            int splitFromVersionLastIndex = splitFromVersion.length - 1;
-
-
-            int versionNumber;
-
-            if (checkStringIsInt(splitFromVersion[splitFromVersionLastIndex])) {
-                versionNumber = Integer.parseInt(splitFromVersion[splitFromVersionLastIndex]);
-
-            } else {
-                versionNumber = 0;
-
-            }
-
-            System.out.println(newPathName);
-            StringBuilder fileNameWithoutVersion = new StringBuilder();
-
-            for (int i = 0; i < splitFromVersionLastIndex; i++) {
-                fileNameWithoutVersion.append(splitFromVersion[i]);
-                fileNameWithoutVersion.append("_");
-            }
-            fileNameWithoutVersion.append(splitFromVersion[splitFromVersionLastIndex]);
-
-            // Next, we check to see which version this next image will be.
-            // If there is a house_0.png already, we should make an image called house_1.png
-            file = new File("images/" + fileNameWithoutVersion + "_" + versionNumber + "." + splitFromExtension[splitFromExtensionLastIndex]);
-
-
-            while (file.exists()) {
-                versionNumber++;
-                file = new File("images/" + fileNameWithoutVersion + "_" + versionNumber + "." + splitFromExtension[splitFromExtensionLastIndex]);
-
-                System.out.println();
-            }
-
-            ImageIO.write(image, splitFromExtension[splitFromExtensionLastIndex], file);
+            String[] splitFromExtension = file.getName().split("\\.");
+            String fileType = splitFromExtension[splitFromExtension.length - 1];
+            ImageIO.write(image, fileType, file);
             System.out.println("Successfully converted a colored image into a grayscale image");
         } catch (IOException e) {
             System.out.println(e);
