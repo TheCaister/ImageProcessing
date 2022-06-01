@@ -6,6 +6,11 @@ import java.io.File;
 import java.io.IOException;
 
 public class ImageProcessing {
+    /**
+     * Checks if a String is an Integer.
+     * @param input String to be checked.
+     * @return True if the input is an Integer and False otherwise.
+     */
     public static boolean checkStringIsInt(String input) {
         try {
             Integer.parseInt(input);
@@ -15,16 +20,11 @@ public class ImageProcessing {
         return false;
     }
 
-    public static String combineStringArray(String[] array) {
-        StringBuilder output = new StringBuilder();
-
-        for (String s : array) {
-            output.append(s);
-        }
-
-        return output.toString();
-    }
-
+    /**
+     * Tries to find and retrieve a File using the provided filename.
+     * @param filename Name of the file to search for.
+     * @return File handle to the desired file if it is found.
+     */
     public static File findFile(String filename) {
         File file;
         file = new File(filename);
@@ -44,6 +44,10 @@ public class ImageProcessing {
         return file;
     }
 
+    /**
+     * Converts an image to greyscale
+     * @param filename Name of the image file to apply the greyscale transformation to.
+     */
     public static void GreyScale(String filename) {
         BufferedImage image = null;
         File file = null;
@@ -57,15 +61,25 @@ public class ImageProcessing {
 
         int width = image.getWidth();
         int height = image.getHeight();
+
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
+                // Returns RGB value as an int. It's split up into 4 chunks of 8 bits
+                // since an int is 32 bits.
                 int p = image.getRGB(x, y);
-                int a = (p >> 24) & 0xff;
-                int r = (p >> 16) & 0xff;
-                int g = (p >> 8) & 0xff;
-                int b = p & 0xff;
-                int avg = (r + g + b) / 3;
-                p = (a << 24) | (avg << 16) | (avg << 8) | avg;
+
+                // Extracting the different RGBA values.
+                int alpha = (p >> 24) & 0xff;
+                int red = (p >> 16) & 0xff;
+                int green = (p >> 8) & 0xff;
+                int blue = p & 0xff;
+
+                //Getting the average of red, green and blue values.
+                int avg = (red + green + blue) / 3;
+
+                // Rebuilding the pixel, replacing the RGB parts with their average value to make it greyscale.
+                p = (alpha << 24) | (avg << 16) | (avg << 8) | avg;
+
                 image.setRGB(x, y, p);
             }
         }
@@ -113,7 +127,7 @@ public class ImageProcessing {
                 System.out.println();
             }
 
-            ImageIO.write(image, "png", file);
+            ImageIO.write(image, splitFromExtension[splitFromExtensionLastIndex], file);
             System.out.println("Successfully converted a colored image into a grayscale image");
         } catch (IOException e) {
             System.out.println(e);
